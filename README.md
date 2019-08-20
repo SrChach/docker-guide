@@ -50,12 +50,22 @@ Los *Registries* son para las imágenes, como Github lo es para el código fuent
 docker container run --publish 80:80 nginx
 ```
 
-The above command does:
+The above command does (easy):
 
-1. Check if we have a image named "nginx"
-2. if not, get the latest image fro "nginx" from hub.docker.com
+1. Check if we have a image named "nginx" in cache.
+2. if not, get the latest image for "nginx" from hub.docker.com
 3. Instance it into a container
 4. The "publish" part into the command exposes the local port 80 on my machine and sends all traffic from it to the executable running inside that container in port 80.
+
+What really happens when we run `docker run {image_name}`: (there's much stuff we'll see below, soon )
+
+1. Check if we have a image named "nginx" in cache.
+2. if not, get the latest image (or given version) for "nginx" from hub.docker.com image repository
+3. Look at there, download it and store it in the image cache 
+4. Make an instance of this container, running a new layer of changes on the top of these image
+5. Give a specific virtual address inside docker virtual network, and if we specify to it, expose a port into the container to a real port into our computer. 
+6. Start this container with a command specified in the Dockerfile 
+
 
 ``` bash
 # The 'detach' flag leaves it running into the background
@@ -73,6 +83,9 @@ docker container stop __CONTAINER_ID_HERE__
 
 # Or to kill all containers running
 docker container stop $(docker container ls -q)
+
+# to re-run a container process
+docker container start __NAME_OF_CONTAINER__
 ```
 
 
@@ -107,3 +120,24 @@ docker container rm $(docker container ls -aq)
 # Do not do it at home, for force removing containers even if they're running
 docker container rm -f __IDS_OF_OUR_CONTAINERS__
 ```
+
+## Differences between containers and VM's
+
+Some people compares VM's to Containers, and there's no way, because Containers are simply a restricted processes into our host operating system. Let's take a look. 
+
+``` bash
+# Run an image of Mongo, call it mongo and run in the background ( -d == --detach )
+docker container run --name mongo -d mongo
+
+docker container ls
+docker container top mongo
+```
+
+We can also do this from the host. Because it's just a proc ess running on our host operating system
+
+If you're in linux, by typing `ps aux`, you'll the processes running in containers. In this case, `mongod` process.
+It's not hide into a virtual machine to what we can't get access to. 
+
+
+
+This doesn't works on Win/Mac because it runs a mini-VM :/ 
