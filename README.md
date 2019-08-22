@@ -50,20 +50,13 @@ Los *Registries* son para las imágenes, como Github lo es para el código fuent
 docker container run --publish 80:80 nginx
 ```
 
-The above command does (easy):
-
-1. Check if we have a image named "nginx" in cache.
-2. if not, get the latest image for "nginx" from hub.docker.com
-3. Instance it into a container
-4. The "publish" part into the command exposes the local port 80 on my machine and sends all traffic from it to the executable running inside that container in port 80.
-
 What really happens when we run `docker run {image_name}`: (there's much stuff we'll see below, soon )
 
 1. Check if we have a image named "nginx" in cache.
-2. if not, get the latest image (or given version) for "nginx" from hub.docker.com image repository
+2. if not, get the latest image (or a version we specify) for "nginx" from hub.docker.com image repository
 3. Look at there, download it and store it in the image cache 
-4. Make an instance of this container, running a new layer of changes on the top of these image
-5. Give a specific virtual address inside docker virtual network, and if we specify to it, expose a port into the container to a real port into our computer. 
+4. Make an instance of this image, running a new layer of changes on the top of these image
+5. Give a specific virtual address inside docker virtual network, and if we specify to it with the --publish flag, expose a port into the running container to a real port into our computer. 
 6. Start this container with a command specified in the Dockerfile 
 
 
@@ -99,6 +92,9 @@ docker container ls -a
 # For assigning a name for our new running container
 docker container run --publish 80:80 --detach --name __NOMBRE_DE_PRUEBA__ nginx
 
+# We can test that's working by using
+curl localhost # curl localhost:80
+
 # for seeing the logs for our container
 docker container logs __NOMBRE_DE_PRUEBA__
 
@@ -133,7 +129,7 @@ docker container ls
 docker container top mongo
 ```
 
-We can also do this from the host. Because it's just a proc ess running on our host operating system
+We can also do this from the host. Because it's just a process running on our host operating system
 
 If you're in linux, by typing `ps aux`, you'll the processes running in containers. In this case, `mongod` process.
 It's not hide into a virtual machine to what we can't get access to. 
@@ -141,3 +137,30 @@ It's not hide into a virtual machine to what we can't get access to.
 
 
 This doesn't works on Win/Mac because it runs a mini-VM :/ 
+
+## What's going on in running containers
+
+``` bash
+# List all the processes running in a container
+docker container top # Name or ID of container
+
+# show details on metadata and configuration about one container
+docker container inspect # Name or ID of container
+
+# monitoring performance stats of all containers, or a given container 
+docker container stats
+```
+
+## Getting a shell inside containers (NO SSH needed)
+
+
+``` bash
+```
+
+## Notes / To do
+
+> Managing multiple containers (manually)
+
+> the --env or -e flag in mysql new container configuration
+
+git log --author="\(GaboGomez\)\|\(Rodrigo Medina\)\|\(Ignacio\)" --shortstat b8a686bf0b37a4d7ded71af2b5c78c77b8bad7e9..f571f137ab019fdf269c3d7ccdccf2faf04a5212
