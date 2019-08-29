@@ -153,9 +153,37 @@ docker container stats
 
 ## Getting a shell inside containers (NO SSH needed)
 
+How do I get into th container and actuall do things inside it from che Command Line?
+Sometimes people confuse this with wanting a SSH server inside their container so they can ssh into it.
+
+But we don't need to do this because there are several commands that lets us get a shell inside  the container itself when it's running.
 
 ``` bash
+# Start new container interactively, get a shell inside container 
+# '-t' is for a pseudo-TTY or prompt. It simulates a prompt
+# '-i' is for keep that session open so we can keep running more commands  
+docker container run -it # command
+
+# running example
+# 'bash', most of times, used with -it will gives us a terminal inside the  running container 
+docker container run -it --name proxy nginx bash
 ```
+
+This last command will give a shell to me into the terminal, with root user. This don't means that i'm root user in computer, but also i'm the root user inside this container
+
+ The number after it's actually the container ID.
+
+ From this prompt i could do any of the administrative stuff that you could do on a common shell.
+
+ When i type `exit`, container will stop.
+
+(pending) I left in `4:43`.
+``` bash
+# Run additional commands into running containers
+docker container exec -it 
+```
+
+We'll talk about the differences between linux distros inside containers and linux distros inside our machine/VM 
 
 ## Notes / To do
 
