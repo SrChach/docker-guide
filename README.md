@@ -1,3 +1,9 @@
+## Requirements to use this guide
+
+1. Get docker installed
+2. A little bit of knowledge about the terminal in linux/unix
+3. An internet connection
+
 ## Instalando Docker (pendiente)
 
 Pendientes:
@@ -151,6 +157,24 @@ docker container inspect # Name or ID of container
 docker container stats
 ```
 
+## Passing arguments to containers
+
+The way we can set environment variables to a container (for example, mysql, and it's needed) is:
+
+``` bash
+# Generic example
+docker container run --env __SOME_ENVIRONMENT_VARIABLE__=value __IMAGE_NAME__
+
+
+# Example ( -e equals --env )
+docker container run -d --name mysql -e MYSQL_RANDOM_ROOT_PASSWORD=true mysql
+
+# And, because in this example we've generated a random password, we'll need to see it with
+docker container logs mysql
+
+# Ane search the "GENERATED ROOT PASSWORD" value into it
+```
+
 ## Getting a shell inside containers (NO SSH needed)
 
 How do I get into th container and actuall do things inside it from che Command Line?
@@ -177,18 +201,75 @@ This last command will give a shell to me into the terminal, with root user. Thi
 
  When i type `exit`, container will stop.
 
-(pending) I left in `4:43`.
 ``` bash
-# Run additional commands into running containers
-docker container exec -it 
+# Run an instance of ubuntu. The default command on a normal ubuntu installation is "bash" so we won't put it
+docker container run -it --name ubuntu ubuntu
 ```
 
-We'll talk about the differences between linux distros inside containers and linux distros inside our machine/VM 
+For re-running a created container interactively (running a bash into it):
+
+``` bash
+# Re-run a created container
+docker container start -ai __ContainerName_Or_ContainerID__
+```
+
+But, what if I want to see the shell into a running container?
+We can do that by using the docker command `Exec`
+
+``` bash
+# Run additional commands into running containers
+docker container exec -it __CONTAINER_NAME_OR_ID__ __ORDER_TO_EXECUTE__
+
+# Example
+
+# Let's suppose we still have running the container we've initialized with
+# " docker container run -d --name mysql -e MYSQL_RANDOM_ROOT_PASSWORD=true mysql "
+
+# This command will open a terminal interactively into a running container, named "mysql"
+docker container exec -it mysql bash
+
+# The "ps" command it's not included into normal mysql containers, but you can install it by use, inside container
+# apt-get update && apt-get install -y procps
+# And then, check the processes running by use "ps aux"
+
+# We can enter to the normal MYSQL CLI in this container
+# We grabbed the password from docker logs in a previous exercise
+mysql -u root -p
+
+mysql> exit
+
+# If we exit from a container that we entered by using "execute", the container will be executing still
+exit
+
+docker container ls
+```
+
+When we exit from a "Docker container exec", the container will be still running because `docker container exec` runs an additional process on an existing running container.
+
+Let's see another example with a so small distribution of linux, called Alpine (its actually 5mb on size)
+
+``` bash
+# Download Alpine
+
+# "docker pull alpine" also works
+docker image pull alpine
+
+# TRY to run a bash inside new alpine container
+docker container run -it alpine bash
+
+# Past command will throw an error, because "bash" it's not into the image instructions.
+
+# Run an interactive shell into a new Alpine container
+# "docker container run -it alpine sh" also  works, because image doesn't have bash, but have "sh" (a smaller and not so full-featured shell)
+docker container run -it --name alpine alpine
+
+# Note: The package manager for Alpine is APK and we can install bash if needed
+```
 
 ## Notes / To do
 
-> Managing multiple containers (manually)
+> Pendant: Pass to spanish and re-organize my disaster xD
+
+> Docker Pull
 
 > the --env or -e flag in mysql new container configuration
-
-git log --author="\(GaboGomez\)\|\(Rodrigo Medina\)\|\(Ignacio\)" --shortstat b8a686bf0b37a4d7ded71af2b5c78c77b8bad7e9..f571f137ab019fdf269c3d7ccdccf2faf04a5212
