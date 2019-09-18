@@ -1,8 +1,8 @@
-## Requirements to use this guide
+## Requerimientes para usar esta guia
 
-1. Get docker installed
-2. A little bit of knowledge about the terminal in linux/unix
-3. An internet connection
+1. Tener [Docker](https://docs.docker.com/v17.12/cs-engine/1.13/) instalado
+2. Un poco de conocimiento de la terminal en linux/unix
+3. Conexión a internet
 
 ## Instalando Docker (pendiente)
 
@@ -10,72 +10,205 @@ Pendientes:
 
 > Hacer una guia de instalación de docker en Linux, Mac... y si se puede, windows
 
-> Traducir al español (lo estoy construyendo en inglés... por ahora)
+## Introducción
 
-## Checking possible installation errors
+### Comprobando la instalación
 
-> Complete with an explanation of it
+Primero checaremos que tengamos Docker instalado correctamente
 
 ``` bash
-# Checar datos básicos y si se instaló bien
+# Devuelve la versión de docker si está instalado correctamente
 docker version
-
-# Mas informacion acerca de nuestra actual instalación de Docker
-docker info
-
-# Para listar todos los posibles comandos
-docker
 ```
 
-## Differences between old and new manner to run commands (pending)
+Podemos obtener una explicación sobre el uso de los comandos usando `"--help"`
 
-> retro-compatibility will be here ever(i expect), there's only another way to do things
+``` bash
+# Para listar todos los comandos y sus opciones
+docker [comando] --help
+```
 
-> Notice that only changes the base commands, the flags will be working the same for both ways
+### Aclaraciones
 
-## Imágenes VS Contenedores
+Hay diferencias entre la forma antigua de correr los comandos de Docker y la actual.
 
-Una imagen son todos los binarios, librerias y código fuente que componen tu aplicación.
+Aunque hay retro-compatibilidad y siempre podremos acceder a la forma anterior, en este manual haremos uso de la forma más actualizada.
 
-Un contenedor en cambio, es una INSTANCIA de esa imágen, corriendo
+No habrán problemas. Aunque sea diferente la sintaxis, el funcionamiento es el mismo.
+
+> Nota: Lo único que cambia son los comandos base. Las banderas / `flags` funcionarán igual en ambos casos.
+
+### Imágenes VS Contenedores
+
+Muchas personas se confunden aquí, y en realidad es simple.
+
+1. Una imagen son todos los binarios, librerias y código fuente que componen la aplicación base. (Por ejemplo, hay imágenes de Mongo, Flask, MySQL...)
+2. Un contenedor en cambio, es una INSTANCIA de esa imágen, corriendo
 
 Por ejemplo, tú podrías tener muchos contenedores basados en la misma imágen.
 
-## From where we get our images?
+Ahora bien, **de dónde conseguiremos las imágenes para trabajar?**
 
-Pero de dónde estaremos obteniendo nuestras imágenes?
-
-Los *Registries* son para las imágenes, como Github lo es para el código fuente. Y el *registry* oficial de Docker es [Docker Hub](https://hub.docker.com), y lo estaremos usando más adelante.
+Las imágenes de docker se guardan en *Registries*. Los *Registries* son versionadores de imágenes, tal como Github lo es para el código fuente. Y el *registry* oficial de Docker es [Docker Hub](https://hub.docker.com). Lo estaremos usando más adelante.
 
 
-## Beggining with containers
+## Comenzando con contenedores
+
+### Creando contenedores
+
+El primer comando que veremos es `docker run`. El comando debajo creará un contenedor a partir de la imagen "*nginx*" y lo correrá en el puerto local 80 (puedes acceder a `"localhost:80"` desde el navegador para probar que haya funcionado, o con el comando `curl localhost:80`)
+
+La sintaxis del comando es:
+
+> docker container run --publish 'puerto_local:puerto_del_contenedor' 'nombre_docker_image'
 
 ``` bash
-# Old way uses docker run *****
-# docker container run --publish 'local_port:container_port' 'image_name'
+# La forma vieja era "docker run [opciones]"
 docker container run --publish 80:80 nginx
 ```
 
-What really happens when we run `docker run {image_name}`: (there's much stuff we'll see below, soon )
+Fácil, no? 
 
-1. Check if we have a image named "nginx" in cache.
-2. if not, get the latest image (or a version we specify) for "nginx" from hub.docker.com image repository
-3. Look at there, download it and store it in the image cache 
-4. Make an instance of this image, running a new layer of changes on the top of these image
-5. Give a specific virtual address inside docker virtual network, and if we specify to it with the --publish flag, expose a port into the running container to a real port into our computer. 
-6. Start this container with a command specified in the Dockerfile 
+Lo que realmente hace el comando `"docker run [image_name]"` (para este ejemplo `image_name` será *nginx*) es:
 
+1. Checar si ya tenemos una imágen llamada "nginx" en la caché.
+2. Si no la encuentra, busca en [docker registry](https://hub.docker.com) la última versión de la imagen con nombre "*nginx*" (a menos que le especifiquemos la versión que queremos)
+3. La encuentra, la descarga y la almacena en la caché de imágenes 
+4. Hace una nueva instancia de esa imágen, y corre una nueva capa de cambios sobre esa imágen
+5. Da una `dirección virtual` específica dentro de la "docker virtual network", y si especificamos la bandera `"--publish"`, expone un puerto de nuestro nuevo contenedor a un puerto real en nuestra computadora
+6. Arranca el contenedor con un comando especificado en el *Dockerfile*
+
+Todo esto sin que tengamos qué preocuparnos por cómo pasa.
+
+Podemos parar el contenedor simplemente pulsando `ctrl` + `c`
+
+#### Opciones de 'docker container run'
+
+Notas:
+
+1. Puedes usar varias banderas/opciones con el mismo comando
+2. Cada que corremos `docker container run`, se crea un nuevo contenedor. Más adelante veremos cómo pararlos, borrarlos, ver sus nombres o re-iniciar contenedores existentes.
+
+**Asignar puerto de salida a un contenedor**
+
+Con la bandera `--publish`, o simplemente `-p` podemos asignar un puerto del contenedor a un host en nuestra máquina, para de esa forma poder conectarnos o ver la salida.
+
+Los argumentos para la bandera "--publish" son dos números, separados por *dos puntos*, de esta forma: `puerto_local:puerto_del_contenedor`
 
 ``` bash
-# The 'detach' flag leaves it running into the background
-# And we get the unique container-id of our container
-# Every time you run a new container you'll get a new container ID
-docker container run --publish 80:80 --detach nginx
+# ejemplo
+docker container run --publish 8080:80 nginx
+```
 
-# To list all of our running  containers. We'll get the container ID from it
-# Old way: docker ps
+> Nota: Para parar la ejecución del comando de arriba basta con pulsar `"CTRL + C"`
+
+**Correr en el background**
+
+La bandera `--detach`, o simplemente `-d` sirve para correr nuestro contenedor en segundo plano.
+
+Se imprimirá el identificador, o *container-id* único para el nuevo contenedor, para que podamos trabajar con él más adelante.
+
+``` bash
+# Ejemplo
+docker container run --detach nginx
+```
+
+**Asignar un nombre al contenedor**
+
+Podemos asignar un nombre al contenedor que vamos a correr, usando la bandera `--name`, luego un espacio y el nombre del contenedor
+
+``` bash
+# Ejemplo. Este contenedor tendrá como nombre "__NOMBRE_DE_PRUEBA__"
+docker container run --name __NOMBRE_DE_PRUEBA__ nginx
+```
+
+Debajo viene una explicación de cómo usar los nombres y ID's
+
+**Combinando banderas**
+
+Y ahora el ejemplo final, usando todas las banderas anteriores, correrá en el background el contenedor, lo dejará en el puerto 80 local y le dará nombre *mi_contenedor*:
+
+```bash
+docker container run --detach --publish 8081:80 --name mi_contenedor nginx
+```
+
+### Monitoreando contenedores
+
+#### Listando contenedores
+
+Ahora que hemos corrido uno o varios contenedores, nos interesa saber la información sobre ellos: Si están corriendo o no, de qué imágen fueron creados, los puertos en los que corren, etc.
+
+El comando que usaremos listar los contenedores es
+
+Notas:
+1. La forma vieja de usarlo era `docker ps`
+2. El comando, sin pasarle banderas, solo nos muestra los contenedores **ACTIVOS ACTUALMENTE**
+
+``` bash
+# Este comando lista los contenedores que están corriendo actualmente
 docker container ls
+```
 
+Al correr este comando obtendremos una tabla de valores como la siguiente
+
+|CONTAINER_ID|IMAGE|COMMAND|CREATED|STATUS|PORTS|NAMES|
+|--|--|--|--|--|--|--|
+|0bc44566dba5|nginx|"nginx -g 'daemon of…"|3 minutes ago|Up 33 minutes| 0.0.0.0:8081->80/tcp|modest_elgamal|
+
+Valores que tendremos que explicar, ya que los usaremos más adelante
+
+- **CONTAINER_ID**: Identificador de cada contenedor, asignado automáticamente. Para utilizarlo en otros comandos más adelante no será necesario poner todo el *ID*, basta con unos cuantos caracteres para que la computadora entienda que nos referimos a un contenedor único.
+- **IMAGE**: Imagen a partir de la cual fué creado el contenedor
+- **COMMAND**: El comando (especificado dentro de la imágen) con el que arrancó el contenedor
+- **CREATED**: Fecha de creación del container
+- **STATUS**: Status actual del contenedor
+- **PORTS**: Puertos [A la izquierda el puerto local, a la derecha el puerto del contenedor] en los que está corriendo el contenedor.
+- **NAMES**: Nombre del contenedor. Generado automática y aleatoriamente, a menos que nosotros le especifiquemos un nombre al crearlo con la bandera `--name`
+
+
+#### Opciones al listar contenedores
+
+**Listando activos e inactivos**
+
+Para listar todos los contenedores, incluidos los que no están activos en este momento, usamos la opción `--all`, o simplemente `-a`
+
+``` bash
+# Muestra todos los containers (Incluyendo los inactivos)
+docker container ls -a
+```
+
+**Lista solo los ID's de los contenedores**
+
+Comando muy útil más adelante. Para listar solo los ID's de los contenedores usamos `--quiet`, o simplemente `-q`
+
+``` bash
+# Muestra sólo los ID's de los containers
+docker container ls -q
+```
+
+#### Otras formas de obtener información de nuestros contenedores
+
+Una vez obtenidos el *Nombre* o el *ID* del contenedor, podemos conocer más información aceca de él mediante varios comandos. En ambos casos el `__ARGUMENTO__` que pasaremos puede ser tanto el *Nombre* como el *ID* del contenedor, y funcionará en ambos casos. 
+
+**Ver los logs de un contenedor**
+
+Comando útil para ver qué ha pasado dentro de nuestro contenedor, ver errores, etc
+
+``` bash
+docker container logs __ARGUMENTO__
+```
+
+**Para ver los procesos dentro de un contenedor**
+
+Este comando nos listará los procesos corriendo dentro de un contenedor dado.
+
+``` bash
+docker container top __ARGUMENTO__
+```
+
+### Deteniendo y re-arrancando contenedores
+
+``` bash
 # Stop an running container
 # Old way: docker stop (container ID)
 docker container stop __CONTAINER_ID_HERE__
@@ -85,27 +218,6 @@ docker container stop $(docker container ls -q)
 
 # to re-run a container process
 docker container start __NAME_OF_CONTAINER__
-```
-
-
-``` bash
-# Notice that this command only shows RUNNING containers
-docker container ls
-
-# To show all containers (including not running)
-docker container ls -a
-
-# For assigning a name for our new running container
-docker container run --publish 80:80 --detach --name __NOMBRE_DE_PRUEBA__ nginx
-
-# We can test that's working by using
-curl localhost # curl localhost:80
-
-# for seeing the logs for our container
-docker container logs __NOMBRE_DE_PRUEBA__
-
-# For seeing the processes running into a given  container
-docker container top __NOMBRE_DE_PRUEBA__
 ```
 
 ``` bash
