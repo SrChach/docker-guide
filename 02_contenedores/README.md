@@ -154,6 +154,9 @@ docker container top __ARGUMENTO__
 
 ## Deteniendo y re-arrancando contenedores
 
+NOTA: Para poder avanzar necesitas los conceptos de [Container ID](#L106) y [Container Name](#112)
+
+
 ``` bash
 # Stop an running container
 # Old way: docker stop (container ID)

@@ -39,23 +39,30 @@ Ahora bien, **de dónde conseguiremos las imágenes para trabajar?**
 
 Las imágenes de docker se guardan en *Registries*. Los *Registries* son versionadores de imágenes, tal como Github lo es para el código fuente. Y el *registry* oficial de Docker es [Docker Hub](https://hub.docker.com). Lo estaremos usando más adelante.
 
-## Differences between containers and VM's
+## Diferencias entre Contenedores y Maquinas Virtuales
 
-Some people compares VM's to Containers, and there's no way, because Containers are simply a restricted processes into our host operating system. Let's take a look. 
+Algunas personas comparan *Máquinas Virtuales* con *Contenedores*, y realmente no hay forma.
+
+Los contenedores son simplemente *procesos restringidos* dentro de nuestro sistema operativo anfitrión, mientras que las máquinas virtuales tienen su propio sistema operativo corriendo, y sus procesos son vistos como una caja negra vistos desde nuestro sistema operativo anfitrión.
+
+En el ejemplo debajo, mostraremos los procesos corriendo en un contenedor, tanto desde el contenedor como desde la máquina anfitrión.
+
+> Nota: El siguiente ejercicio requiere algo de nivel para ser entendido, puedes volver aquí más tarde
 
 ``` bash
-# Run an image of Mongo, call it mongo and run in the background ( -d == --detach )
+# Corre una imágen de mongo, la llama "mongo" y la corre en el background
 docker container run --name mongo -d mongo
 
+# Listamos los contenedores
 docker container ls
+
+# Listamos los procesos corriendo en nuestro contenedor, desde docker
 docker container top mongo
+
+## Advertencia: El comando debajo sólo correrá en linux
+
+# Listamos los procesos VISTOS DESDE NUESTRA MAQUINA HOST, y buscamos entre ellos "mongod" (que es el proceso corriendo en nuestro contenedor)
+ps aux | grep mongod
 ```
 
-We can also do this from the host. Because it's just a process running on our host operating system
-
-If you're in linux, by typing `ps aux`, you'll the processes running in containers. In this case, `mongod` process.
-It's not hide into a virtual machine to what we can't get access to. 
-
-
-
-This doesn't works on Win/Mac because it runs a mini-VM :/
+Con el resultado (sobre todo de `"ps aux | grep mongod"`) observamos *desde la maquina anfitrion* el proceso corriendo en el contenedor, lo que nos hace ver que no es inaccesible como lo sería dentro de una máquina virtual, de la que no podemos acceder a sus procesos. Como decíamos, en un contenedor sólo son procesos con permisos diferentes
