@@ -1,15 +1,24 @@
 # Alpine example
 
-# "docker pull alpine" also works
+# Descargamos la imagen alpine
+# "docker pull alpine" también funciona
 docker image pull alpine
 
-# TRY to run a bash inside new alpine container
-docker container run -it alpine bash
+# INTENTAMOS correr bash dentro del nuevo contenedor
+docker container run --name alpine -it alpine bash
 
-# Past command will throw an error, because "bash" it's not into the image instructions.
+# El comando de arriba lanzará un error, por que "bash" no es un comando dentro de las instrucciones de la imagen.
 
-# Run an interactive shell into a new Alpine container
-# "docker container run -it alpine sh" also  works, because image doesn't have bash, but have "sh" (a smaller and not so full-featured shell)
+# Borramos el contenedor creado fallidamente
+docker container rm -f alpine
+
+# Corremos un shell interactivo dentro de un nuevo contenedor Alpine
+# "docker container run -it alpine sh" también funciona,
+# por que la imágen en vez de "bash", tiene "sh" (un shell más pequeño y con menos características) como terminal por defecto
 docker container run -it --name alpine alpine
 
-# Note: The package manager for Alpine is APK and we can install bash if needed
+# El package manager de Alpine es "APK", con él podríamos instalar "bash" si lo necesitáramos
+apk add bash
+
+# Salimos de Alpine
+exit
