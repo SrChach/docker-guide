@@ -254,46 +254,70 @@ Ahora bien, para borrar TODOS los contenedores indiscriminadamente puede hacer
 docker container rm -f $(docker container ls -aq)
 ```
 
-## Getting a shell inside containers (NO SSH needed)
+## Controlando el interior de los contenedores
 
-How do I get into th container and actuall do things inside it from che Command Line?
-Sometimes people confuse this with wanting a SSH server inside their container so they can ssh into it.
+Cómo puedo entrar en el contenedor y hacer cosas dentro de él, desde la Línea de Comandos?
 
-But we don't need to do this because there are several commands that lets us get a shell inside  the container itself when it's running.
+Algunas veces las personas confunden esto con querer un servidor SSH dentro del contenedor, pero esto no es necesario.
+Nosotros haremos uso de varios comandos de Docker que nos permiten controlar el contenedor desde una CLI, aún cuando ya esté corriendo
+
+> Recordatorio: Borra tus contenedores al terminar los ejercicios
+
+### Obteniendo una terminal al crear un contenedor
+
+La primer forma es que desde el momento de crear un contenedor obtengamos una terminal dentro de él. Esto quiere decir también que cuando cerremos la Terminal que hemos abierto dentro del contenedor, éste se detendrá. 
+
+Para ésto simplemente usaremos `docker container run` con un par de banderas extra
+
+1. La bandera `"-t"`, que abre un pseudo-TTY o prompt. Esto simula una línea de comandos dentro.
+2. La bandera `"-i"`, que nos permite mantener la sesion abierta, así podemos permanecer corriendo comandos
+
+El parámetro sigue siendo el nombre de la imágen a partir de la que queremos crear el contenedor, pero el último parámetro ésta vez será el nombre de comando que correremos al crear el contenedor. En la mayoría de casos, "*bash*" 
+
+Veamos la estructura del comando
 
 ``` bash
-# Start new container interactively, get a shell inside container 
-# '-t' is for a pseudo-TTY or prompt. It simulates a prompt
-# '-i' is for keep that session open so we can keep running more commands  
-docker container run -it # command
-
-# running example
-# 'bash', most of times, used with -it will gives us a terminal inside the  running container 
-docker container run -it --name proxy nginx bash
+# Arrancar un contenedor interactivamente con una CLI, usando "-it"  
+docker container run -it  __NOMBRE_IMAGEN__  __COMANDO_A_EJECUTAR__
 ```
 
-This last command will give a shell to me into the terminal, with root user. This don't means that i'm root user in computer, but also i'm the root user inside this container
-
- The number after it's actually the container ID.
-
- From this prompt i could do any of the administrative stuff that you could do on a common shell.
-
- When i type `exit`, container will stop.
+Ahora chequemos un ejemplo
 
 ``` bash
-# Run an instance of ubuntu. The default command on a normal ubuntu installation is "bash" so we won't put it
-docker container run -it --name ubuntu ubuntu
+# Corremos el comando 'bash' de una imagen nginx 
+docker container run -it nginx bash
 ```
 
-For re-running a created container interactively (running a bash into it):
+El comando de arriba nos da una terminal dentro del contenedor, con usuario "root". Esto **NO** significa que sea root en la computadora, sino que soy usuario root dentro del contenedor. 
+
+El número que aparece después del **@** es el ID del contenedor.
+
+Desde este prompt, yo podría hacer cualquier tipo de operación administrativa que harías en una terminal normal. Cuando escriba `"exit"` en la terminal, el contenedor se detendrá.
+
+Tienes un ejemplo de cómo correr Ubuntu interactivamente [aqui](./terminal_ubuntu.sh)
+
+### Re-arrancando un contenedor interactivamente
+
+Para re-arranncar de forma interactiva un contenedor, volvemos a usar `docker container start` con un par de banderas extra
+
+1. La bandera `-i` para pasar lo que escribamos en nuestra terminal al contenedor
+2. La bandera `-a` para recibir las señales de salida del contenedor
+
+La sintaxis es:
 
 ``` bash
-# Re-run a created container
 docker container start -ai __ContainerName_Or_ContainerID__
 ```
 
-But, what if I want to see the shell into a running container?
-We can do that by using the docker command `Exec`
+> Duda mia: Aunque, lo único que se puede correr en este caso es el comando por defecto del contenedor.
+
+### Obteniendo una shell en contenedores corriendo
+
+> Acá me quedé
+
+Pero, si quiero ver una shell en un contenedor que ya está corriendo?
+
+Para esos casos usamos el comando `docker container exec`
 
 ``` bash
 # Run additional commands into running containers
