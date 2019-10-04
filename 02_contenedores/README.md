@@ -78,7 +78,7 @@ Y ahora el ejemplo final, usando todas las banderas anteriores, correrá en el b
 docker container run --detach --publish 8081:80 --name mi_contenedor nginx
 ```
 
-**Passing arguments to containers**
+**Pasando argumentos a un contenedor**
 
 En algunos casos, necesitamos pasar variables de entorno a un contenedor. Esto puede hacerse usando la bandera `--env`, o simplemente `-e`
 
@@ -87,7 +87,7 @@ En algunos casos, necesitamos pasar variables de entorno a un contenedor. Esto p
 docker container run --env __NOMBRE_VARIABLE_ENTORNO__=__VALOR_VARIABLE__ nginx
 ```
 
-Ejemplo de cómo pasar variables de entorno a un container de mysql [aqui](./env_values.sh)
+Ejemplo de cómo pasar variables de entorno a un container de mysql [aqui](./variables_entorno.sh)
 
 ## Monitoreando contenedores
 
@@ -181,40 +181,77 @@ Muestra todos los metadatos y configuración del contenedor. Muchas veces no usa
 docker container inspect __ARGUMENTO__
 ```
 
-## Deteniendo y re-arrancando contenedores
+## Manejando contenedores
 
 > NOTA: Para poder avanzar necesitas los conceptos de **Container ID** y **Container Name**, disponibles bajo el nombre *CONTAINER_ID* y *NAMES*, respectivamente, en la descripción de la tabla de [listando contenedores](#Listando-contenedores)
 
 
-Hasta ahora sabemos crear y listar contenedores, pero aun nos falta saber cómo pararlos, y cómo arrancar contenedores previamente creados.
+Hasta ahora sabemos crear, listar y obtener datos de los contenedores, pero aun nos falta detenerlos, y saber cómo arrancar contenedores previamente creados.
 
-> Me quedé acá
+### Deteniendo contenedores
+
+***Detener un contenedor***
+
+Para detener uno o varios contenedores, basta con conocer su nombre, o ID y pasárselo como argumento al siguiente comando
 
 ``` bash
-# Stop an running container
-# Old way: docker stop (container ID)
-docker container stop __CONTAINER_ID_HERE__
-
-# Or to kill all containers running
-docker container stop $(docker container ls -q)
-
-# to re-run a container process
-docker container start __NAME_OF_CONTAINER__
+# Vieja forma de hacerlo: docker stop (container ID)
+docker container stop __NOMBRE_o_ID__
 ```
 
+***Detener todos los contenedores***
+
+Para detener todos los contenedores usaremos el comando `"docker container ls -q"`, que nos devuelve *SOLO* los ID's de los contenedores activos. Pasaremos esto como parámetro a `"docker container stop"` 
+
 ``` bash
-# For removing one or more containers
-# Old way: docker rm ****
-docker container rm __IDS_OF_OUR_CONTAINERS__
+# Para parar todos los containers corriendo
+docker container stop $(docker container ls -q)
+```
 
-# If you pass a running container, it will tell you that you can't remove a running container 
+### Re-arrancando contenedores
 
-# for removing all containers
-docker container stop $(docker container ls -aq)
-docker container rm $(docker container ls -aq)
+Al igual que al detenerlos, lo único que necesitamos para re-arrancar un contenedor es su *nombre* o *id*. El comando para arrancarlos es
 
-# Do not do it at home, for force removing containers even if they're running
-docker container rm -f __IDS_OF_OUR_CONTAINERS__
+``` bash
+docker container start __NOMBRE_o_ID__
+```
+
+### Borrando contenedores
+
+**Borrar un contenedor**
+
+Cuando ya no ocupamos los contenedores, podemos borrarlos para ahorrar el espacio, nombre o crear nuevos. Esto se puede hacer con
+
+> Nota: Para poder borrar un contenedor, este tiene que estar detenido
+
+``` bash
+# Vieja forma de hacerlo: docker rm ****
+docker container rm __IDS_o_NOMBRES__
+```
+
+***Borrar todos los contenedores apagados***
+
+Para borrar todos los contenedores que no están activos, podemos listar todos los contenedores inactivos y pasarlos como parámetro a `docker container stop`
+
+``` bash
+# Lista los contenedores inactivos y los borra
+docker container rm $(docker container ls -q --filter "status=exited")
+```
+
+***Forzar la salida de un contenedor, aún activo***
+
+Dado que no podemos borrar un contenedor si está corriendo, podemos usar la bandera `--force`, o simplemente `"-f"` para forzarlos a borrarse.
+
+``` bash
+# No lo haga en casa, forza que se borren los contenedores especificos aunque estén corriendo
+docker container rm -f __IDS_o_NOMBRES__
+```
+
+Ahora bien, para borrar TODOS los contenedores indiscriminadamente puede hacer
+
+``` bash
+# De verdad, no lo haga en casa...
+docker container rm -f $(docker container ls -aq)
 ```
 
 ## Getting a shell inside containers (NO SSH needed)
