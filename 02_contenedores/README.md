@@ -78,6 +78,17 @@ Y ahora el ejemplo final, usando todas las banderas anteriores, correrá en el b
 docker container run --detach --publish 8081:80 --name mi_contenedor nginx
 ```
 
+**Passing arguments to containers**
+
+En algunos casos, necesitamos pasar variables de entorno a un contenedor. Esto puede hacerse usando la bandera `--env`, o simplemente `-e`
+
+``` bash
+# Ejemplo genérico
+docker container run --env __NOMBRE_VARIABLE_ENTORNO__=__VALOR_VARIABLE__ nginx
+```
+
+Ejemplo de cómo pasar variables de entorno a un container de mysql [aqui](./env_values.sh)
+
 ## Monitoreando contenedores
 
 ### Listando contenedores
@@ -136,7 +147,7 @@ docker container ls -q
 
 Una vez obtenidos el *Nombre* o el *ID* del contenedor, podemos conocer más información aceca de él mediante varios comandos. En ambos casos el `__ARGUMENTO__` que pasaremos puede ser tanto el *Nombre* como el *ID* del contenedor, y funcionará en ambos casos. 
 
-**Ver los logs de un contenedor**
+***Ver los logs de un contenedor***
 
 Comando útil para ver qué ha pasado dentro de nuestro contenedor, ver errores, etc
 
@@ -144,7 +155,7 @@ Comando útil para ver qué ha pasado dentro de nuestro contenedor, ver errores,
 docker container logs __ARGUMENTO__
 ```
 
-**Para ver los procesos dentro de un contenedor**
+***Para ver los procesos dentro de un contenedor***
 
 Este comando nos listará los procesos corriendo dentro de un contenedor dado.
 
@@ -152,10 +163,32 @@ Este comando nos listará los procesos corriendo dentro de un contenedor dado.
 docker container top __ARGUMENTO__
 ```
 
+***Para obtener el consumo de recursos y desempeño de un contenedor***
+
+Este comando nos permite ver el uso de memoria, CPU y más información de rendimiento de un contenedor en tiempo real.
+
+Si le pasamos el argumento, nos mostrará el contenedor específico. De lo contrario, nos mostrará los stats de todos los contenedores
+
+``` bash
+docker container stats __ARGUMENTO__
+```
+
+***Para mostrar los metadatos de un contenedor***
+
+Muestra todos los metadatos y configuración del contenedor. Muchas veces no usaremos estos valores, a menos que seamos muy avanzados o el problema específico lo requiera.
+
+``` bash
+docker container inspect __ARGUMENTO__
+```
+
 ## Deteniendo y re-arrancando contenedores
 
-NOTA: Para poder avanzar necesitas los conceptos de [Container ID](#L106) y [Container Name](#112)
+> NOTA: Para poder avanzar necesitas los conceptos de **Container ID** y **Container Name**, disponibles bajo el nombre *CONTAINER_ID* y *NAMES*, respectivamente, en la descripción de la tabla de [listando contenedores](#Listando-contenedores)
 
+
+Hasta ahora sabemos crear y listar contenedores, pero aun nos falta saber cómo pararlos, y cómo arrancar contenedores previamente creados.
+
+> Me quedé acá
 
 ``` bash
 # Stop an running container
@@ -182,37 +215,6 @@ docker container rm $(docker container ls -aq)
 
 # Do not do it at home, for force removing containers even if they're running
 docker container rm -f __IDS_OF_OUR_CONTAINERS__
-```
-
-## What's going on in running containers
-
-``` bash
-# List all the processes running in a container
-docker container top # Name or ID of container
-
-# show details on metadata and configuration about one container
-docker container inspect # Name or ID of container
-
-# monitoring performance stats of all containers, or a given container 
-docker container stats
-```
-
-## Passing arguments to containers
-
-The way we can set environment variables to a container (for example, mysql, and it's needed) is:
-
-``` bash
-# Generic example
-docker container run --env __SOME_ENVIRONMENT_VARIABLE__=value __IMAGE_NAME__
-
-
-# Example ( -e equals --env )
-docker container run -d --name mysql -e MYSQL_RANDOM_ROOT_PASSWORD=true mysql
-
-# And, because in this example we've generated a random password, we'll need to see it with
-docker container logs mysql
-
-# Ane search the "GENERATED ROOT PASSWORD" value into it
 ```
 
 ## Getting a shell inside containers (NO SSH needed)
