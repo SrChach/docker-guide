@@ -309,62 +309,61 @@ La sintaxis es:
 docker container start -ai __ContainerName_Or_ContainerID__
 ```
 
-> Duda mia: Aunque, lo único que se puede correr en este caso es el comando por defecto del contenedor.
+El problema de usar esto, es que lo único que podemos correr es el comando por defecto del contenedor.
+
+Veamos un ejemplo. Éste depende de que hayamos corrido [el ejemplo de ubuntu](./terminal_ubuntu.sh) y no hayamos borrado el contenedor. Ya que en el ejemplo nombramos "ubuntu" al contenedor, es lo que pasamos como parámetro.
+
+``` bash
+docker container start -ai ubuntu
+
+# Podemos probar el contenedor con un comando del paquete "curl", que instalamos en el ejemplo
+curl https://www.google.com
+```
+
+Y listo, tenemos nuestra terminal dentro del contenedor.
 
 ### Obteniendo una shell en contenedores corriendo
 
-> Acá me quedé
-
 Pero, si quiero ver una shell en un contenedor que ya está corriendo?
 
-Para esos casos usamos el comando `docker container exec`
+Para esos casos usamos el comando `docker container exec`, que sirve para correr un proceso adicional en un contenedor corriendo. Usaremos las mismas banderas que en el ejemplo anterior de `docker container run`, las banderas `"-i"` y `"-t"`
+
+Estructura del comando:
 
 ``` bash
-# Run additional commands into running containers
+# Corre comandos adicionales en contenedores corriendo
 docker container exec -it __CONTAINER_NAME_OR_ID__ __ORDER_TO_EXECUTE__
+```
 
-# Example
+Ejemplo. Para este ejemplo necesitas haber hecho el ejemplo de [pasar variables de entorno a un contenedor](./variables_entorno.sh) y no haber borrado el contenedor.
 
-# Let's suppose we still have running the container we've initialized with
-# " docker container run -d --name mysql -e MYSQL_RANDOM_ROOT_PASSWORD=true mysql "
+Bien, vamos al ejemplo
 
-# This command will open a terminal interactively into a running container, named "mysql"
+``` bash
+# Checamos con "docker container ls" si está corriendo un contenedor con nombre "mysql"
+# Si no está corriendo, ejecutamos:
+### docker container start mysql
+
+# Este comando ejecutará un comando en un contenedor que ya esté corriendo.
+# En este caso, ejecutará en el contenedor "mysql" el comando "bash"
 docker container exec -it mysql bash
 
-# The "ps" command it's not included into normal mysql containers, but you can install it by use, inside container
-# apt-get update && apt-get install -y procps
-# And then, check the processes running by use "ps aux"
-
-# We can enter to the normal MYSQL CLI in this container
-# We grabbed the password from docker logs in a previous exercise
+# Podemos entrar a la línea de comandos de MYSQL en este contenedor
+# Tomamos el password generado en el ejercicio de variables de entorno y lo ponemos aqui cuando pida la contraseña
 mysql -u root -p
 
+# Aqui estamos dentro de la línea de comandos de MySql, simplemente saldremos de ella
 mysql> exit
 
-# If we exit from a container that we entered by using "execute", the container will be executing still
+# Si salimos de un contenedor al que hemos entrado usando "docker container execute", el contenedor se seguirá ejecutando aun así
 exit
 
+# Checamos, para ver que se siga ejecutando
 docker container ls
 ```
 
-When we exit from a "Docker container exec", the container will be still running because `docker container exec` runs an additional process on an existing running container.
+Nota que, cuando salimos de un contenedor al que entramos usando `"Docker container exec"`, el contenedor estará corriendo aún, debido a que `docker container exec` corre un proceso adicional, no es el proceso principal del contenedor.
 
-Let's see another example with a so small distribution of linux, called Alpine (its actually 5mb on size)
+Hay un ejemplo con una distribución ultraligera de Linux (pesa alrededor de 5 mb), llamada Alpine [aqui](./alpine.sh)
 
-``` bash
-# Download Alpine
 
-# "docker pull alpine" also works
-docker image pull alpine
-
-# TRY to run a bash inside new alpine container
-docker container run -it alpine bash
-
-# Past command will throw an error, because "bash" it's not into the image instructions.
-
-# Run an interactive shell into a new Alpine container
-# "docker container run -it alpine sh" also  works, because image doesn't have bash, but have "sh" (a smaller and not so full-featured shell)
-docker container run -it --name alpine alpine
-
-# Note: The package manager for Alpine is APK and we can install bash if needed
-```
