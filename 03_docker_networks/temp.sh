@@ -12,3 +12,8 @@ docker container inspect --format "{{ .NetworkSettings.IPAddress }}" webhost
 
 # PENDIENTE POR TERMINAR, ADUNTAR IMAGEN DE DOCKER NETWORKS
 
+#################################################################################################
+
+# Para listar las redes disponibles
+docker network ls
+
