@@ -63,7 +63,11 @@ docker network create --driver __DRIVER_NAME__  __NOMBRE_NUEVA_RED__
 Podemos añadir un contenedor a una red al crearlo usando la opción `--network`.
 
 ``` bash
-docker container run --network --name vue_container -it ebiven/vue-cli
+# sintaxis
+docker container run --network __NOMBRE_RED__  __NOMBRE_CONTENEDOR__
+
+# ejemplo
+docker container run --network bridge --name vue_container -it ebiven/vue-cli
 ```
 
 ### Conectar un contenedor a una red 
