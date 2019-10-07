@@ -8,11 +8,8 @@
 1. [Instalación](./00_instalacion/README.md)
 2. [Introducción](./01_introduccion/README.md)
 3. [Contenedores](./02_contenedores/README.md)
+4. [Redes](./03_docker_networks/README.md)
 
 ## Notes / To do
 
-> Pendant: Pass to spanish and re-organize my disaster xD
-
 > Docker Pull
-
-> the --env or -e flag in mysql new container configuration

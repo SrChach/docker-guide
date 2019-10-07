@@ -22,37 +22,43 @@ También cabe señalar que si hacemos varias subredes, los contenedores **SOLO**
 
 Cada una de las redes a las que podríamos conectarnos se rutean a través del *firewall NAT*, que es en realidad el *daemon* de Docker que configura las direcciones IP en nuestra máquina. Es el encargado de que tus contenedores puedan salir a Internet, o a la red local.
 
-Podemos hacer uso de esto de muchas formas. Usando una red una por app, añadiendo contenedores a más de una red (o a ninguna, como en el mundo real), etc
-Podemos usar diferentes drivers de red de Docker, para tener nuevas habilidades.
+Podemos hacer uso de esto de muchas formas. Usando una red una por app, añadiendo contenedores a más de una red (o a ninguna, como en el mundo real), etc.
 
+Podemos también usar diferentes drivers de red de Docker, para tener nuevas "habilidades" en nuestras redes.
 
-## Listando redes
+## Operaciones básicas
 
-Para listar las redes corriendo dentro de docker usamos `docker network ls`. Aqui aparecerán también las redes virtuales creadas por nosotros.
+### Listando redes
+
+Para listar las redes corriendo dentro de docker usamos `docker network ls`. Aqui aparecerán tanto las redes virtuales creadas por nosotros, como las redes por defecto de Docker.
 
 ``` bash
 docker network ls
 ```
 
-Generalmente, nos devolverá tres valores al inicio. La red por defecto de Docker es `"bridge"`, también llamada `"docker0"` dependiendo de la versión. Se llama `bridge` por que *puentea* entre el firewall NAT a nuestra red física.
+### Inspeccionando redes
 
-## Inspeccionando redes
-
-Obteniendo los detalles de una red, como los contenedores asignados a ella, opciones, etc
+Para obtener los detalles de una red, como los contenedores asignados a ella, opciones, et. usamos `docker network inspect`
 
 ``` bash
-docker network inspect __NETW_NAME_OR_ID__
+docker network inspect __ID_o_NOMBRE_DE_LA_RED__
 ```
 
-## Crear redes
+### Crear redes
 
-Crea una nueva red, a la que podemos asignar drivers para extenderla
+Para crear una nueva red
 
 ``` bash
-docker network create --driver __NOMBRE_NUEVA_RED__
+docker network create __NOMBRE_NUEVA_RED__
 ```
 
-## Asignar contenedor a una red al crearlo
+También podemos usar "drivers" para extender sus propiedades, usando la bandera `--driver`, de la siguiente manera
+
+``` bash
+docker network create --driver __DRIVER_NAME__  __NOMBRE_NUEVA_RED__
+``` 
+
+### Asignar contenedor a una red al crearlo
 
 Podemos añadir un contenedor a una red al crearlo usando la opción `--network`.
 
@@ -60,32 +66,47 @@ Podemos añadir un contenedor a una red al crearlo usando la opción `--network`
 docker container run --network --name vue_container -it ebiven/vue-cli
 ```
 
-## Conectar un contenedor a una red 
+### Conectar un contenedor a una red 
 
 Para conectar un contenedor existente a una red, usamos el comando `docker network connect`. Esto añade un contenedor a la red. Pero no lo retira, por si está en uso. Así, un contenedor pueden estar adjunto a varias redes al mismo tiempo
 
 Basicamente, da una nueva dirección Ethernet, en una red diferente, con una IP distinta, asignada por DHCP
 
 ``` bash
-docker network connect __NETWORK_NAME_OR_ID__  __CONTAINER_NAME_OR_ID__
+docker network connect __NOMBRE_o_ID_DE_RED__  __NOMBRE_o_ID_DE_CONTENEDOR__
 
 # Para garantizar que se haya añadido a la red
 docker container inspect webhost
 ```
 
-## Desconectar un contenedor de una red
+### Desconectar un contenedor de una red
 
 Para desconectar seguimos la misma sintaxis que para conectar
 
 ``` bash
-docker network disconnect __NETWORK_NAME_OR_ID__  __CONTAINER_NAME_OR_ID__
+docker network disconnect __NOMBRE_o_ID_DE_RED__  __NOMBRE_o_ID_DE_CONTENEDOR__
 ```
 
 Las redes nos dan una ventaja: realmente podemos protejer nuestros contenedores, aun en nuestra propia máquina, permitiendo no exponerlos de más... osea, sólo exponiendo los puertos necesarios al público
 
-``` bash
+### Borrar una red
 
+Para borrar una red usamos el comando
+
+``` bash
+docker network rm __NOMBRE_o_ID_DE_LA_RED__
 ```
+
+> Nota: cuidado al borrar tus redes
+
+## Docker Networks: DNS
+
+En el mundo de los contenedores constantemente lanzándose, desapareciendo, moviéndose y expandiéndose, usar IP's estáticas para hablar entre contenedores es anti-patron, y debemos evitar usarlos. Tampoco podemos confiar en las IP's cuando estas son dinámicas, ya que sería difícil seguirlas.
+
+Hay una solución para esto, y es nombramiendo por DNS, donde Docker usa los nombres de los contenedores para comunicarlos entre si. Un equivalente a *Host name*, por así decirlo.
+
+Veamos un ejemplo [aqui](./docker_dns.sh)
+
 
 
 
