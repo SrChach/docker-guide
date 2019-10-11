@@ -1,5 +1,7 @@
 # Docker Images
 
+> Arreglar / Re-escribir esta sección. Está incompleta y mal redactada
+
 Una imágen son "los binarios y dependencias de tu aplicación, así como los metadatos para correrla" según [Bret Fisher](https://www.bretfisher.com).
 
 Aunque, lo que dice la definición es "Es una colección ordenada de cambios en el sistema de archivos raíz, y los correspondientes parámetros de ejecución para poder correr dentro de un contenedor".
@@ -36,5 +38,85 @@ docker image pull nginx
 > Nota: Ya que pueden cambiar cosas en la última versión, es aconsejable ligar el ambiente de **producción** a una versión, hasta comprobar si es compatible con la siguiente o no  
 
 - ver weas de tags
+
+### image layers
+
+Una imágen no es solo un gran bloque de datos.
+
+Las imágenes son diseñadas usando el concepto de *Union File System*, almacenar capas de cambios sobre el filesystem, y a cada una de esas series de cambios (y los metadatos relacionados a ella) se les llaman *capas*, o *layers*.
+
+Como cada capa guarda **solo** los cambios que han pasado entre el original y la actual, tienen un SHA que corresponde a ese cambio único. De forma que nunca tendremos dos veces almacenada la misma capa de cambios dos veces. Esto ahorra mucho espacio, ya que si corremos cosas varias veces sobre la misma capa, solo se almacenará esta una vez.
+
+Nos ahorra espacio, así como tiempo al subir y descargar imágenes. Si sólo hay cambios en una capa, o se añadió esa nueva capa, es lo único que se cambia si el resto de *capas* ya se encuentran cacheadas
+
+Así, si empezamos un nuevo contenedor, estamos corriendo solo otra capa de instrucciones sobre la imagen existente. 
+
+Podemos ver los cambios al operar una imagen usando 
+
+``` bash
+docker image history __IMAGE_NAME__
+```
+
+Esto nos brinda un historial de las capas de la imágen. Nos permite ver "de qué" está hecha la imágen.
+
+Cada imágen empieza al inicio con una capa vacía llamada *"scratch"*.
+
+Y entonces, cada conjunto de cambios después de eso en el sistema operativo... en la imágen, son otra capa. 
+Hay capas que contienen muchos datos, y otras que pesan 0 bytes. Estas últimas son sólo cambios en los metadatos, o instruccciones del *dockerfile* en ocasiones.
+
+> Nunca almacenamos el conjunto completo de *image layers*, más de una vez si son realmente las mismas capas. (se identifican con sha, se construyen unas sobre otras... añade dibujitos) 
+
+También podemos conocer los metadatos de una imágen usando el comando 
+
+``` bash
+docker image inspect __IMAGE_NAME__
+```
+
+Entre otras cosas, ahi obtenemos detalles de cómo la imágen espera ser corrida. Variables de entorno, puertos a abrir por defecto, comandos para correr la imágen, entre otras cosas.
+
+Mucho de esto, por supuesto puede ser cambiado. Pero `docker container inspect` nos muestra los valores por defecto
+
+## Docker images info
+
+Datos de *ls* en formato
+
+``` bash
+<user>/<repo>:<tag>
+```
+
+Ahora bien, hablemos de Tags. Los tags en las imágenes de Docker son etiquetas que apuntan a un image ID. Podemos tener varias de ellas apuntando al mismo image ID, por cierto.
+
+### Como hacer nuevas etiquetas de docker?
+
+``` bash
+docker image tag nginx srchach/nginxd
+```
+
+Para re-taggear imágenes. El tag por defecto, si no asignamos ningún sub-tag es *latest*, que es solo el default. No quier decir que sea siempre la última imágen...
+
+### iniciar sesión en docker hub desde el CLI
+
+esto te pedirá el username de dockerhub y el password. una llave generada se almacena por defecto en `~/.docker/config.json` 
+
+``` bash
+docker login 
+
+# and for logout
+docker logout
+```
+
+tambien arriba (hub.docker) podemos hacer las imágenes privadas v:
+
+## Construyendo imágenes: dockerfile basics
+
+un *dockerfile* es solo la receta para crear tu imágen. Todas las imágenes que hemos usado see crean desde *dockerfiles*
+
+Son como bashes, pero específicas de Docker. Y Dockerfile como archivo se escribe con la primer *D* mayuscula
+
+**explica acá un dockerfile**
+
+video 39, minuto 1
+
+se pone el FROM, generalmente de una distro linux, para hacer uso de sus package managers.
 
 
