@@ -2,16 +2,15 @@
 
 > Arreglar / Re-escribir esta sección. Está incompleta y mal redactada
 
-Una imágen son "los binarios y dependencias de tu aplicación, así como los metadatos para correrla" según [Bret Fisher](https://www.bretfisher.com).
+Las imágenes en docker son los binarios y dependencias de tu aplicación, así como los metadatos necesarios para correrla, según [Bret Fisher](https://www.bretfisher.com).
 
-Aunque, lo que dice la definición es "Es una colección ordenada de cambios en el sistema de archivos raíz, y los correspondientes parámetros de ejecución para poder correr dentro de un contenedor".
+O "una colección ordenada de cambios en el sistema de archivos raíz, y los correspondientes parámetros de ejecución para poder correr dentro de un contenedor", según la definición oficial.
 
-Aunque la primer definición es más corta y concisa. En un contenedor no hay un Sistema Operativo, kernel, drivers, etc.
-Realmente son *SOLO* los binarios que la app requiere para funcionar, ya que la maquina anfitrión proporciona el kernel.
+Lo importante es que las imágenes y los contenedores corriendo sobre ellas no necesitan Sistema operativo, kernel, drivers ni esa clase de cosas. *SOLO* ocupan los binarios que la app requiere para funcionar, ya que la maquina anfitrión pone el resto.
 
 ## Encontrando imágenes adecuadas
 
-Como ya dijimos, el mejor lugar para buscar imágenes es el almacén oficial de imágenes de Docker, [docker hub](https://hub.docker.com). Aunque existen todo tipo de imágenes que podemos utilizar, las que usaremos más son las *oficiales*, que tienen el letrero *"official image"* arriba. Reciben constante mantenimiento del equipo de Docker, así como que la documentación sobre su ffuncionamiento es generalmente mejor.
+Como ya dijimos, el mejor lugar para buscar imágenes es el almacén oficial de imágenes de Docker, [docker hub](https://hub.docker.com). Aunque existen todo tipo de imágenes que podemos utilizar, las que usaremos más son las *oficiales*, que tienen el letrero *"official image"* arriba. Reciben constante mantenimiento del equipo de Docker, así como que la documentación sobre su funcionamiento es generalmente mejor.
 
 Al construir un usuario una imágen, se muestra *nombre_de_usuario/nombre_de_imagen*. Otra cosa que distingue a las imágenes oficiales es que éstas no tienen nombre de  usuario asociado.
 
@@ -119,4 +118,25 @@ video 39, minuto 1
 
 se pone el FROM, generalmente de una distro linux, para hacer uso de sus package managers.
 
+## My first image
+
+
+**en la misma carpeta donde pusimos el Dockerfile**
+
+``` bash
+# -t is for tagging
+docker image build -t __IMAGE_NAME__ .
+```
+
+``` bash
+# retag an image
+docker image tag __OLD_TAG__  __NEW_TAG__
+
+# push to docker hub
+docker image push __IMAGE_NAME__
+```
+
+``` bash
+
+```
 
